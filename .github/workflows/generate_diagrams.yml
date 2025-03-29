@@ -1,0 +1,45 @@
+name: Generate C4 PlantUML Diagrams
+
+on:
+  push:
+    branches: [ "main" ] # Or your default branch (e.g., master)
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+permissions:
+  contents: write # Necessary to commit generated files back to the repo
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate PlantUML Diagrams
+        # This uses the official PlantUML Docker image
+        # It finds all .puml files and generates PNGs into the corresponding images/ subdirectory
+        run: |
+          find . -name "*.puml" | while read puml_file; do
+            # Determine the directory of the puml file
+            puml_dir=$(dirname "$puml_file")
+            # Define the output directory for images relative to the puml file's directory
+            output_dir="$puml_dir/images"
+            # Create the images directory if it doesn't exist
+            mkdir -p "$output_dir"
+            # Run PlantUML via Docker, mounting the current directory
+            # -tpng generates PNG files (use -tsvg for SVG)
+            # -o specifies the output directory *relative to the container's /data mount*
+            echo "Processing $puml_file -> $output_dir"
+            docker run --rm -v "$(pwd):/data" plantuml/plantuml -v -tpng -o "$(dirname "$puml_file")/images" "$puml_file"
+          done
+
+      - name: Commit and Push Updated Diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-generate C4 diagrams [skip ci]" # [skip ci] prevents triggering this workflow again
+          # Optional: specify pattern if you have other files you DON'T want auto-committed
+          file_pattern: "**/*.png **/*.svg" # Add/change based on your output format (-tpng/-tsvg)
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          # Optional: Add this if you want to push to a specific branch other than the one that triggered the workflow
+          # push_options: '--force' # Use with caution if necessary, usually not needed

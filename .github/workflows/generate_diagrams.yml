@@ -25,22 +25,41 @@ jobs:
           distribution: 'temurin' # Or 'zulu', 'adopt', etc.
           java-version: '17' # PlantUML needs Java
 
+      - name: Cache Graphviz
+        id: cache-graphviz
+        uses: actions/cache@v4
+        with:
+          path: /usr/bin/dot
+          key: ${{ runner.os }}-graphviz
+
       - name: Install Graphviz
-        run: sudo apt-get update && sudo apt-get install -y graphviz
+        if: steps.cache-graphviz.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Cache PlantUML
+        id: cache-plantuml
+        uses: actions/cache@v4
+        with:
+          path: plantuml.jar
+          key: ${{ runner.os }}-plantuml-1.2024.3
 
       - name: Download PlantUML
+        if: steps.cache-plantuml.outputs.cache-hit != 'true'
         run: wget https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar -O plantuml.jar # Check latest version
-      
+
       - name: Create diagrams directory
         run: mkdir -p diagrams
-      
-      - name: Generate PNG Diagrams (Manual)
+
+      - name: Generate PNG Diagrams
         run: |
           for file in src/*.puml; do
             echo "Processing $file..."
             java -jar plantuml.jar -tpng "$file" -o diagrams # Output png to diagrams/
           done
-      - name: Generate SVG Diagrams (Manual) - Uncomment if you prefer SVG
+
+      - name: Generate SVG Diagrams - Uncomment if you prefer SVG
         run: |
           for file in src/*.puml; do
             echo "Processing $file for SVG..."
@@ -58,3 +77,5 @@ jobs:
         with:
           commit_message: "docs: Auto-generate PlantUML diagrams"
           file_pattern: 'diagrams/*' # Commit only changes in the diagrams directory
+          # Optional: If you want to add the diagrams directory itself to git
+          # add_empty_commit: true

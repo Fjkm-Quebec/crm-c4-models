@@ -69,7 +69,13 @@ jobs:
 
       - name: Create diagrams directory
         run: mkdir -p diagrams
-
+        
+      - name: Generate PNG Diagrams (Simple)
+        run: |
+          echo "Processing src/simple.puml..."
+          java -jar plantuml.jar -tpng src/simple.puml -o diagrams 2>&1 | tee plantuml_output.log || exit 1
+          cat plantuml_output.log
+      
       - name: Generate PNG Diagrams
         run: |
           for file in src/*.puml; do

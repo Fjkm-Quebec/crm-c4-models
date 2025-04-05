@@ -7,11 +7,15 @@ on:
     paths: ['src/**.puml', '.github/workflows/**.yml'] # Only run if .puml files in src/ change
   workflow_dispatch: # Allows manual triggering
 
+permissions:
+  contents: write # Required to push changes back to the repository
+  pages: write # Required to push changes to GitHub Pages if needed
+
 jobs:
   generate_diagrams:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Allow action to write to the repository
+      contents: write
 
     steps:
       - name: Checkout Repository

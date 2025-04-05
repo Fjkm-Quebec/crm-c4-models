@@ -77,10 +77,10 @@ jobs:
       - name: Create diagrams directory
         run: mkdir -p diagrams
 
-      - name: Debug: Check diagrams directory permissions (Before PlantUML)
+      - name: Debug Check diagrams directory permissions (Before PlantUML)
         run: ls -la diagrams
 
-      - name: Debug: Check if plantuml.jar is executable
+      - name: Debug Check if plantuml.jar is executable
         run: |
           if [ -x plantuml.jar ]; then
             echo "plantuml.jar is executable"

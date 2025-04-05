@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main # Or your default branch
-    paths:
-      - 'src/**.puml' # Only run if .puml files in src/ change
+    paths: ['src/**.puml', '.github/workflows/**.yml'] # Only run if .puml files in src/ change
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -17,6 +16,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Java
         uses: actions/setup-java@v4

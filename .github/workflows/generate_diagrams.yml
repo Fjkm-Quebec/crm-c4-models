@@ -70,8 +70,10 @@ jobs:
         run: |
           for file in src/*.puml; do
             echo "Processing $file..."
-            java -jar plantuml.jar -tpng "$file" -o diagrams || exit 1 # Output png to diagrams/
+            java -jar plantuml.jar -tpng "$file" -o diagrams 2>&1 | tee plantuml_output.log || exit 1
+            cat plantuml_output.log
           done
+      
 
       - name: Generate SVG Diagrams - Uncomment if you prefer SVG
         run: |

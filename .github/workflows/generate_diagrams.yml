@@ -47,6 +47,12 @@ jobs:
             java -jar plantuml.jar -tsvg "$file" -o diagrams # Output svg to diagrams/
           done
 
+      - name: Debug List diagrams directory
+        run: ls -la diagrams
+
+      - name: Debug Git status
+        run: git status
+
       - name: Commit and Push diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
         with:

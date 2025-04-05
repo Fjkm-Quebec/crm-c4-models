@@ -26,3 +26,10 @@ replay_pid*
 # Allow diagrams directory
 !diagrams/
 !diagrams/*
+
+# Ignore all node_modules directories
+node_modules/
+# Ignore all .env files
+.env
+# Ignore all .env.* files
+.env.*

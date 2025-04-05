@@ -35,7 +35,6 @@ jobs:
         with:
           distribution: 'temurin' # Or 'zulu', 'adopt', etc.
           java-version: '17' # PlantUML needs Java
-          cache: 'maven' # Add cache for maven
 
       - name: Debug Java version
         run: java -version

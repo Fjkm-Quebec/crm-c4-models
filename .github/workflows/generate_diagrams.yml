@@ -24,8 +24,9 @@ jobs:
           distribution: 'temurin' # Or 'zulu', 'adopt', etc.
           java-version: '17' # PlantUML needs Java
 
-      
-      # Option 2: Manual PlantUML Execution (If the action above doesn't work or you need more control)
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
       - name: Download PlantUML
         run: wget https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar -O plantuml.jar # Check latest version
       
@@ -45,25 +46,8 @@ jobs:
             java -jar plantuml.jar -tsvg "$file" -o diagrams # Output svg to diagrams/
           done
 
-      # Option 1: Using a dedicated PlantUML Action (Recommended)
-      # - name: Generate Diagrams (using action)
-      #   uses: cloudbees/plantuml-actions/generate-diagrams@v1.1.0 # Check for latest version
-      #   with:
-      #     # Location of the PlantUML source files (.puml)
-      #     source: "src"
-      #     # Location where generated diagrams will be stored
-      #     output: "diagrams"
-      #     # Optional: Specify output format (png, svg, etc.)
-      #     # format: png
-      #     # Optional: Include specific config files if needed
-      #     # config: plantuml.config
-      #     # Optional: Specify PlantUML version if needed
-      #     # version: latest
-
       - name: Commit and Push diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "docs: Auto-generate PlantUML diagrams"
           file_pattern: 'diagrams/*' # Commit only changes in the diagrams directory
-          # Optional: Specify branch if not pushing to the triggering branch
-          # push_options: '--force' # Use with caution if needed

@@ -34,6 +34,13 @@ jobs:
             exit 1
           fi
 
+      - name: Debug Check content of .puml files
+        run: |
+          for file in src/*.puml; do
+            echo "Content of $file:"
+            cat "$file"
+          done
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -69,27 +76,31 @@ jobs:
 
       - name: Create diagrams directory
         run: mkdir -p diagrams
-        
+
+      - name: Debug: Check diagrams directory permissions (Before PlantUML)
+        run: ls -la diagrams
+
+      - name: Debug: Check if plantuml.jar is executable
+        run: |
+          if [ -x plantuml.jar ]; then
+            echo "plantuml.jar is executable"
+          else
+            echo "plantuml.jar is NOT executable"
+          fi
+
       - name: Generate PNG Diagrams (Simple)
         run: |
           echo "Processing src/simple.puml..."
-          java -jar plantuml.jar -tpng src/simple.puml -o diagrams 2>&1 | tee plantuml_output.log || exit 1
+          java -jar plantuml.jar -verbose -tpng src/simple.puml -o diagrams 2>&1 | tee plantuml_output.log || exit 1
           cat plantuml_output.log
-      
+
       - name: Generate PNG Diagrams
         run: |
           for file in src/*.puml; do
             echo "Processing $file..."
-            java -jar plantuml.jar -tpng "$file" -o diagrams 2>&1 | tee plantuml_output.log || exit 1
+            java -jar plantuml.jar -verbose -tpng "$file" -o diagrams 2>&1 | tee plantuml_output.log || exit 1
             cat plantuml_output.log
           done
-      
-      # - name: Generate SVG Diagrams - Uncomment if you prefer SVG
-      #   run: |
-      #     for file in src/*.puml; do
-      #       echo "Processing $file for SVG..."
-      #       java -jar plantuml.jar -tsvg "$file" -o diagrams || exit 1 # Output svg to diagrams/
-      #     done
 
       - name: Debug List diagrams directory
         run: ls -la diagrams

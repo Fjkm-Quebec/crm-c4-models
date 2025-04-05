@@ -1,45 +1,69 @@
-name: Generate C4 PlantUML Diagrams
+name: Generate PlantUML Diagrams
 
 on:
   push:
-    branches: [ "main" ] # Or your default branch (e.g., master)
-  workflow_dispatch: # Allows manual triggering from the Actions tab
-
-permissions:
-  contents: write # Necessary to commit generated files back to the repo
+    branches:
+      - main # Or your default branch
+    paths:
+      - 'src/**.puml' # Only run if .puml files in src/ change
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
-  generate:
+  generate_diagrams:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allow action to write to the repository
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Generate PlantUML Diagrams
-        # This uses the official PlantUML Docker image
-        # It finds all .puml files and generates PNGs into the corresponding images/ subdirectory
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # Or 'zulu', 'adopt', etc.
+          java-version: '17' # PlantUML needs Java
+
+      
+      # Option 2: Manual PlantUML Execution (If the action above doesn't work or you need more control)
+      - name: Download PlantUML
+        run: wget https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar -O plantuml.jar # Check latest version
+      
+      - name: Create diagrams directory
+        run: mkdir -p diagrams
+      
+      - name: Generate PNG Diagrams (Manual)
         run: |
-          find . -name "*.puml" | while read puml_file; do
-            # Determine the directory of the puml file
-            puml_dir=$(dirname "$puml_file")
-            # Define the output directory for images relative to the puml file's directory
-            output_dir="$puml_dir/images"
-            # Create the images directory if it doesn't exist
-            mkdir -p "$output_dir"
-            # Run PlantUML via Docker, mounting the current directory
-            # -tpng generates PNG files (use -tsvg for SVG)
-            # -o specifies the output directory *relative to the container's /data mount*
-            echo "Processing $puml_file -> $output_dir"
-            docker run --rm -v "$(pwd):/data" plantuml/plantuml -v -tpng -o "$(dirname "$puml_file")/images" "$puml_file"
+          for file in src/*.puml; do
+            echo "Processing $file..."
+            java -jar plantuml.jar -tpng "$file" -o diagrams # Output png to diagrams/
+          done
+      - name: Generate SVG Diagrams (Manual) - Uncomment if you prefer SVG
+        run: |
+          for file in src/*.puml; do
+            echo "Processing $file for SVG..."
+            java -jar plantuml.jar -tsvg "$file" -o diagrams # Output svg to diagrams/
           done
 
-      - name: Commit and Push Updated Diagrams
+      # Option 1: Using a dedicated PlantUML Action (Recommended)
+      # - name: Generate Diagrams (using action)
+      #   uses: cloudbees/plantuml-actions/generate-diagrams@v1.1.0 # Check for latest version
+      #   with:
+      #     # Location of the PlantUML source files (.puml)
+      #     source: "src"
+      #     # Location where generated diagrams will be stored
+      #     output: "diagrams"
+      #     # Optional: Specify output format (png, svg, etc.)
+      #     # format: png
+      #     # Optional: Include specific config files if needed
+      #     # config: plantuml.config
+      #     # Optional: Specify PlantUML version if needed
+      #     # version: latest
+
+      - name: Commit and Push diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "docs: Auto-generate C4 diagrams [skip ci]" # [skip ci] prevents triggering this workflow again
-          # Optional: specify pattern if you have other files you DON'T want auto-committed
-          file_pattern: "**/*.png **/*.svg" # Add/change based on your output format (-tpng/-tsvg)
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          # Optional: Add this if you want to push to a specific branch other than the one that triggered the workflow
-          # push_options: '--force' # Use with caution if necessary, usually not needed
+          commit_message: "docs: Auto-generate PlantUML diagrams"
+          file_pattern: 'diagrams/*' # Commit only changes in the diagrams directory
+          # Optional: Specify branch if not pushing to the triggering branch
+          # push_options: '--force' # Use with caution if needed

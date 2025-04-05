@@ -1,0 +1,44 @@
+@startuml C4_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Container diagram for Church CRM
+
+Person(user, "Church Ministry comitee member", "Ministry member who uses the app to manage his ministry activities and members.")
+Person(admin, "Church Admin", "Staff responsible for managing members, activities, and planning.")
+System(crm_system, "Church CRM", "Allows members to see activities and admins to manage church operations.")
+
+System_Ext(auth0, "Auth0", "Handles user authentication and authorization.")
+
+System_Ext(mailSender, "Mail Sender", "Sends emails to users.")
+
+System_Boundary(crm_system, "Church CRM") {
+    Container(frontend, "Frontend SPA", "React", "Provides the user interface in the browser.")
+    Container(backend, "Backend API", "Hono JS", "Handles business logic, data access, and external integrations.")
+    Container(schedule_module, "Schedule System", "Calendar API", "Handles scheduling of activities and events.")
+}
+
+System_Boundary(website_system, "Church Website") {
+    Container(website, "Website", "Next.js", "Provides a public website for the church.")
+}
+
+System_Boundary(supabase_system, "Supabase") {
+    ContainerDb(supabase_db, "Supabase DB", "PostgreSQL", "Stores member info, households, ministries, activities, etc.")
+}
+
+' System_Ext(supabase_db, "Supabase DB", "PostgreSQL database storing application data.")
+System_Ext(vault, "HashiCorp Vault", "Manages secrets and sensitive data.")
+
+Rel(user, frontend, "Uses", "HTTPS")
+Rel(admin, frontend, "Uses", "HTTPS")
+Rel(frontend, backend, "Makes API calls", "HTTPS/JSON")
+Rel(website, backend, "Makes API calls (activities, calendar)", "HTTPS")
+Rel_R(backend, supabase_db, "Reads/Writes data", "SQL/Supabase SDK")
+Rel_L(backend, auth0, "Validates tokens using", "OAuth/JWT")
+Rel_L(frontend, auth0, "Authenticates using", "OAuth/Redirect")
+Rel(backend, vault, "Fetches secrets from", "HTTPS/API")
+Rel(backend, mailSender, "Sends emails using", "SMTP/REST API")
+Rel_R(backend, schedule_module, "Schedules activities using", "REST API")
+
+@enduml

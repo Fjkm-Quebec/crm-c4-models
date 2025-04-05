@@ -1,6 +1,6 @@
 name: Generate PlantUML Diagrams
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
   plantuml:
@@ -12,4 +12,5 @@ jobs:
       - name: Generate SVG Diagrams
         uses: holowinski/plantuml-github-action@main
         with:
+          image: holowinski/plantuml:latest
           args: -v -tsvg diagrams/*.puml

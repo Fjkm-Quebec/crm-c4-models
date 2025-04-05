@@ -1,0 +1,12 @@
+{
+  "name": "crm-c4-models",
+  "version": "1.0.0",
+  "description": "PlantUML diagrams for crm-c4-models",
+  "main": "generate-diagrams.js",
+  "scripts": {
+    "generate": "node generate-diagrams.js"
+  },
+  "dependencies": {
+    "plantuml": "^0.1.1"
+  }
+}

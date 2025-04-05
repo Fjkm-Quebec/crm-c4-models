@@ -1,16 +1,66 @@
-name: Generate PlantUML Diagrams
+name: Generate PlantUML Diagrams (Node.js)
+
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main # Or your default branch
+    paths: ['src/**.puml', '.github/workflows/**.yml'] # Only run if .puml files in src/ change
+  workflow_dispatch: # Allows manual triggering
+
+permissions:
+  contents: write
 
 jobs:
-  plantuml:
+  generate_diagrams:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source
+      - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Generate SVG Diagrams
-        uses: holowinski/plantuml-github-action@main
         with:
-          image: holowinski/plantuml:latest
-          args: -v -tsvg diagrams/*.puml
+          ref: ${{ github.head_ref }}
+
+      - name: Debug List Files in src
+        run: ls -la src
+
+      - name: Debug Check for .puml files
+        run: |
+          find src -name "*.puml" -print
+          if [ -z "$(find src -name "*.puml" -print)" ]; then
+            echo "No .puml files found in src directory!"
+            exit 1
+          fi
+
+      - name: Debug Check content of .puml files
+        run: |
+          for file in src/*.puml; do
+            echo "Content of $file:"
+            cat "$file"
+          done
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or your preferred Node.js version
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install plantuml
+
+      - name: Create diagrams directory
+        run: mkdir -p diagrams
+
+      - name: Generate Diagrams
+        run: node generate-diagrams.js
+
+      - name: Debug List diagrams directory
+        run: ls -la diagrams
+
+      - name: Debug Git status
+        run: git status
+
+      - name: Commit and Push diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-generate PlantUML diagrams"
+          file_pattern: 'diagrams/*'
+          branch: ${{ github.head_ref }}

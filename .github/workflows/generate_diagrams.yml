@@ -90,12 +90,14 @@ jobs:
 
       - name: Generate PNG Diagrams (Simple)
         run: |
+          cd $GITHUB_WORKSPACE
           echo "Processing src/simple.puml..."
           java -jar plantuml.jar -verbose -tpng src/simple.puml -o diagrams 2>&1 | tee plantuml_output.log || exit 1
           cat plantuml_output.log
 
       - name: Generate PNG Diagrams
         run: |
+          cd $GITHUB_WORKSPACE
           for file in src/*.puml; do
             echo "Processing $file..."
             java -jar plantuml.jar -verbose -tpng "$file" -o diagrams 2>&1 | tee plantuml_output.log || exit 1

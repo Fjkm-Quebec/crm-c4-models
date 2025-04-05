@@ -93,3 +93,4 @@ jobs:
         with:
           commit_message: "docs: Auto-generate PlantUML diagrams"
           file_pattern: 'diagrams/*' # Commit only changes in the diagrams directory
+          branch: ${{ github.head_ref }}

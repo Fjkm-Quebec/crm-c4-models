@@ -22,6 +22,7 @@ This project currently includes the following C4 diagrams:
 This diagram illustrates the Church CRM system within its operational environment. It depicts the users who interact with the system and the external systems it integrates with.
 
 ![System Context Diagram](diagrams/C4_context_Whole.png)
+https://github.com/Fjkm-Quebec/crm-c4-models/blob/main/diagrams/C4_Containers_CRM.png
 
 * **Description:**  The System Context diagram provides a high-level view of the Church CRM system, showing its boundaries and its relationships with external entities.
 * **[View Full Size](diagrams/C4_context_Whole.png)** (Click to view the full-size image)
@@ -31,6 +32,7 @@ This diagram illustrates the Church CRM system within its operational environmen
 This diagram breaks down the Church CRM system into its high-level deployable/runnable containers. It shows the major structural elements of the system and how they interact.
 
 ![Container Diagram](diagrams/C4_containers_CRM.png)
+https://github.com/Fjkm-Quebec/crm-c4-models/blob/main/diagrams/C4_Context_Whole.png
 
 * **Description:** The Container diagram details the major building blocks of the Church CRM system, such as web applications, databases, and APIs.
 * **[View Full Size](diagrams/C4_containers_CRM.png)** (Click to view the full-size image)

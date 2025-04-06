@@ -1,0 +1,43 @@
+@startuml C4_Context_Whole
+' This is a C4 model diagram for the Church CRM system
+' It shows the system context and the relationships between the system and its users
+' The diagram is generated using PlantUML and the C4-PlantUML library
+' The diagram is divided into two parts: the system context and the container diagram
+' The system context diagram shows the system and its users
+' The container diagram shows the system and its containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+' uncomment the following line and comment the first to use locally
+' !include C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title System Context diagram for Church CRM
+
+Person(non_member, "Non-member", "A person who is not a member of the church.")
+Person(member, "Church normal member", "A normal member of the church.")
+Person(comitee, "Church comitee member", "A comitee member of the church.")
+Person(admin, "Church admin", "A church admin.")
+Person(leader, "Church leader", "A church leader.")
+System(church_system, "Church CRM", "Allows members to see activities and admins to manage church operations.")
+System(website, "Website", "The church website.")
+
+System_Ext(mail_system, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+System_Ext(supabase_db, "Supabase DB", "PostgreSQL database storing application data.") 
+System_Ext(auth0, "Auth0", "Handles user authentication and authorization.")
+System_Ext(vault, "Hashicorp Vault", "Secret management system.")
+
+Rel(non_member, website, "Uses", "HTTPS")
+
+Rel(admin, church_system, "Manages everything via")
+Rel(leader, church_system, "Manages church data via")
+Rel(comitee, church_system, "Manages church ministry data via")
+Rel_Back(leader, mail_system, "Sends e-mails to")
+Rel_Back(member, mail_system, "Sends e-mails to")
+Rel_Neighbor(church_system, mail_system, "Sends e-mails", "SMTP")
+Rel(church_system, supabase_db, "Uses")
+Rel(church_system, auth0, "Authenticates users using")
+Rel(church_system, vault, "Uses", "API")
+
+Rel_Back(church_system, website, "Uses", " API")
+
+@enduml
